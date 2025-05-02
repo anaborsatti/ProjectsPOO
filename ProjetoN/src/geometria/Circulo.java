@@ -78,11 +78,13 @@ public class Circulo extends FiguraGeometrica {
         double t = ((centro.getX() - a.getX()) * dx + (centro.getY() - a.getY()) * dy) / (dx * dx + dy * dy);
 
         // Garante que a projeção esteja dentro do segmento [0,1]
-        t = Math.max(0, Math.min(1, t));
+        if (t <= 0 || t >= 1) {
+            return false;
+        }
         Point projecao = new Point(a.getX() + t * dx, a.getY() + t * dy);
 
         // Verifica se a projeção está dentro do círculo
-        return centro.dist(projecao) <= raio;
+        return centro.dist(projecao) < raio;
     }
 
 
@@ -92,6 +94,7 @@ public class Circulo extends FiguraGeometrica {
      * @param outra A outra figura a ser verificada.
      * @return true se houver colisão, false caso contrário.
      */
+    //tirar this instanceof
     @Override
     public boolean colideCom(FiguraGeometrica outra) {
         if (outra instanceof Poligono) {
@@ -147,12 +150,12 @@ public class Circulo extends FiguraGeometrica {
             return true;
         }
 
-        // Verifica se pelo menos um dos vértices do polígono está dentro do círculo
-        for (Point vertice : poligono.getVertices()) {
-            if (this.contemPonto(vertice)) {
-                return true;
-            }
-        }
+//        // Verifica se pelo menos um dos vértices do polígono está dentro do círculo
+//        for (Point vertice : poligono.getVertices()) {
+//            if (this.contemPonto(vertice)) {
+//                return true;
+//            }
+//        }
 
         return false;
     }

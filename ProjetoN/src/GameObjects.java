@@ -1,4 +1,6 @@
 import geometria.Point;
+import geometria.Poligono;
+
 
 /**
  * Classe responsável por representar um objeto de jogo, contendo um nome,
@@ -9,7 +11,7 @@ import geometria.Point;
  * @version 30/03/2025
  * @inv O GameObject sempre possui um nome, uma transformação e um collider válidos.
  */
-public class GameObjects implements IGameObjects {
+public class GameObjects implements IGameObject {
     private String name;
     private Transform transform;
     private Collider collider;
@@ -56,6 +58,10 @@ public class GameObjects implements IGameObjects {
         this.transform.move(dPos, dlayer);
     }
 
+    public void setTransform(Transform transform) {
+        this.transform = new Transform(transform); // Create a copy to avoid direct reference issues
+    }
+
     /**
      * Obtém o nome do objeto de jogo.
      *
@@ -86,6 +92,16 @@ public class GameObjects implements IGameObjects {
         return new Collider(this.collider);
     }
 
+    @Override
+    public IShape shape() {
+        return null;
+    }
+
+    @Override
+    public IBehaviour behaviour() {
+        return null;
+    }
+
     /**
      * Retorna a representação em String do objeto de jogo.
      *
@@ -95,7 +111,5 @@ public class GameObjects implements IGameObjects {
     public String toString() {
         return (this.name + "\n" + this.transform + "\n" + this.collider);
     }
-
-
 
 }

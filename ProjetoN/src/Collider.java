@@ -1,3 +1,4 @@
+
 import geometria.Circulo;
 import geometria.FiguraGeometrica;
 import geometria.Point;
@@ -13,35 +14,19 @@ import geometria.Poligono;
  * @inv O Collider sempre possui uma figura geométrica válida e uma transformação associada.
  */
 public class Collider implements ICollider {
-    private Transform transform;
-    private FiguraGeometrica figura;
+    protected Transform transform;
+    protected FiguraGeometrica figura;
 
     /**
      * Constrói um Collider baseado em um conjunto de pontos para formar um polígono.
      *
-     * @param pontos Array de coordenadas representando os vértices do polígono.
      * @param t Transformação associada ao Collider.
      */
-    public Collider(double[] pontos, Transform t) {
+    public Collider(Transform t) {
         this.transform = new Transform(t);
-        this.figura = new Poligono(pontos);
     }
 
-    /**
-     * Constrói um Collider baseado em um círculo com um determinado raio.
-     *
-     * @param raio O raio do círculo.
-     * @param t Transformação associada ao Collider.
-     */
-    public Collider(double raio, Transform t) {
-        this.transform = new Transform(t);
-        double[] valores = new double[3];
 
-        valores[0] = t.position().getX();
-        valores[1] = t.position().getY();
-        valores[2] = raio;
-        this.figura = new Circulo(valores);
-    }
 
     /**
      * Constrói um Collider como cópia de outro Collider.
@@ -50,17 +35,7 @@ public class Collider implements ICollider {
      */
     public Collider(Collider collider) {
         this.transform = new Transform(collider.transform);
-
-        if (collider.getFigura() instanceof Poligono p)
-            this.figura = new Poligono(p.getVerticesArray());
-        else {
-            Circulo circulo = (Circulo) collider.getFigura();
-            double[] valores = new double[3];
-            valores[0] = circulo.getCentro().getX();
-            valores[1] = circulo.getCentro().getY();
-            valores[2] = circulo.getRaio();
-            this.figura = new Circulo(valores);
-        }
+        this.figura = collider.figura;
     }
 
     /**
@@ -72,6 +47,10 @@ public class Collider implements ICollider {
         this.figura = figura;
     }
 
+    public void setTransform(Transform t) {
+        this.transform = t;
+    }
+
     /**
      * Obtém a figura geométrica associada ao Collider.
      *
@@ -80,6 +59,7 @@ public class Collider implements ICollider {
     public FiguraGeometrica getFigura() {
         return this.figura;
     }
+
 
     /**
      * Obtém o centroide do Collider, que corresponde à posição da sua transformação.
@@ -90,6 +70,38 @@ public class Collider implements ICollider {
     public Point centroid() {
         return transform.position();
     }
+
+
+    @Override
+    public void onUpdate() {
+
+    }
+
+
+
+    @Override
+    public boolean isColliding(ICollider other) {
+        if (isColliding(new CollPoly(this))) {
+            (this).onUpdate();
+            return true;
+        }
+        else if (isColliding(new CollCircle(this))) {
+            (this).onUpdate();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isColliding(CollPoly other) {
+        return figura.colideCom(other.getFigura());
+    }
+
+    @Override
+    public boolean isColliding(CollCircle other) {
+        return figura.colideCom(other.getFigura());
+    }
+
 
     /**
      * Retorna a representação em String do Collider, baseada na sua figura geométrica.
@@ -104,13 +116,5 @@ public class Collider implements ICollider {
             return p.toString();
         }
         return null;
-    }
-
-
-    public boolean colision(Collider that){
-        if (this.figura.colideCom(that.figura) && this.transform.layer() == that.transform.layer())
-            return true;
-        else
-            return false;
     }
 }

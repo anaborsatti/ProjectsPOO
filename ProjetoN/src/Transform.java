@@ -18,6 +18,7 @@ public class Transform implements ITransform {
     private double angle;
     private double scale;
     private Collider c;
+    private Velocity velocity;
 
     /**
      * Constrói uma transformação com posição, camada, ângulo e escala especificados.
@@ -46,6 +47,7 @@ public class Transform implements ITransform {
         this.angle = t.angle();
         this.scale = t.scale();
         this.c = t.c;
+        this.velocity = t.getVelocity();
     }
 
     /**
@@ -66,18 +68,9 @@ public class Transform implements ITransform {
      */
     public void updateCollider() {
         if (this.c == null) return;
-
-        FiguraGeometrica figura = this.c.getFigura();
-
-        if (figura instanceof Circulo tempCirculo) {
-            tempCirculo = tempCirculo.escalar(scale).translacao(this.position);
-            this.c.setFigura(tempCirculo);
-        } else if (figura instanceof Poligono tempPoligono) {
-            tempPoligono = tempPoligono.rotacao(this.angle);
-            tempPoligono = tempPoligono.escalar(this.scale);
-            this.c.setFigura(tempPoligono.translacao(this.position));
-        }
+        this.c.onUpdate();
     }
+
 
     /**
      * Move a transformação para uma nova posição e camada.
@@ -92,6 +85,7 @@ public class Transform implements ITransform {
         this.position = new Point(this.position.getX() + x, this.position.getY() + y);
         this.layer += dlayer;
         this.c.setFigura(this.c.getFigura().translacao(this.position));
+        this.c.setTransform(this);
     }
 
     /**
@@ -106,6 +100,7 @@ public class Transform implements ITransform {
         if (this.c.getFigura() instanceof Poligono p) {
             this.c.setFigura(p.rotacao(dTheta));
         }
+        this.c.setTransform(this);
     }
 
     /**
@@ -123,6 +118,7 @@ public class Transform implements ITransform {
         } else if (figura instanceof Circulo c) {
             this.c.setFigura(c.escalar(this.scale));
         }
+        this.c.setTransform(this);
     }
 
     /**
@@ -177,5 +173,13 @@ public class Transform implements ITransform {
         String scale = String.format("%.2f", scale()).replace(",", ".");
 
         return String.format("%s %d %s %s", points, layer(), angle, scale);
+    }
+
+    public void setVelocity(Velocity velocity) {
+        this.velocity = velocity;
+    }
+
+    public Velocity getVelocity() {
+        return this.velocity;
     }
 }

@@ -1,4 +1,5 @@
-public interface IGameObjects {
+
+public interface IGameObject {
 
     /**
      * @return the name of the GameObject
@@ -14,4 +15,9 @@ public interface IGameObjects {
      * @return he Collider of the GameObject with its centroid at this.transform().position()
      */
     ICollider collider();
+
+    IShape shape();
+
+    IBehaviour behaviour();
+
 }

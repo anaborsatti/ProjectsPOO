@@ -1,5 +1,6 @@
 import geometria.Point;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 
@@ -17,73 +18,69 @@ public class Main
     public static void main(String[] args)
     {
         Scanner sc = new Scanner(System.in);
-        GameObjects gameObject = null;
+        List<GameObjects> gameObjects = new ArrayList<>();
 
-        String nome = sc.nextLine();
-        if (nome.isEmpty()) System.exit(0);
 
-        String line = sc.nextLine();
-        if (line.isEmpty()) System.exit(0);
 
         try
         {
-            String[] parts = line.split(" ");
-            Point p = new Point(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]));
-            int layer = Integer.parseInt(parts[2]);
-            double angle = Double.parseDouble(parts[3]);
-            double scale = Double.parseDouble(parts[4]);
+            int frames = Integer.parseInt(sc.nextLine()); // Number of frames to simulate
+            int n = Integer.parseInt(sc.nextLine()); // Number of GameObjects
 
-            Transform t = new Transform(p, layer, angle, scale);
+            for(int i = 0; i < n; i++){
+                String nome = sc.nextLine();
+                if (nome.isEmpty()) System.exit(0);
 
-            line = sc.nextLine();
-            if (line.isEmpty()) System.exit(0);
+                String line = sc.nextLine();
+                if (line.isEmpty()) System.exit(0);
 
-            parts = line.split(" ");
-            double[] valores = new double[parts.length];
+                String[] parts = line.split(" ");
+                Point p = new Point(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]));
+                int layer = Integer.parseInt(parts[2]);
+                double angle = Double.parseDouble(parts[3]);
+                double scale = Double.parseDouble(parts[4]);
 
-            for (int i = 0; i < parts.length; i++) {
-                valores[i] = Double.parseDouble(parts[i]);
-            }
+                Transform t = new Transform(p, layer, angle, scale);
 
-            Collider c;
-
-            if (parts.length == 3){
-                c = new Collider(Double.parseDouble(parts[2]), t);
-            }else{
-                c = new Collider(valores, t);
-            }
-
-            gameObject = new GameObjects(nome, t, c);
-
-            while (sc.hasNextLine())
-            {
                 line = sc.nextLine();
-                if (line.isEmpty()) break;
+                if (line.isEmpty()) System.exit(0);
 
                 parts = line.split(" ");
-                String command = parts[0];
-                if (command.equals("move"))
-                {
-                    Point dPos = new Point(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
-                    int dlayer = Integer.parseInt(parts[3]);
-                    gameObject.move(dPos, dlayer);
-                }
-                else if (command.equals("rotate"))
-                {
+                double[] valores = new double[parts.length];
 
-                    double dTheta = Double.parseDouble(parts[1]);
-                    gameObject.rotate(dTheta);
+                for (int j = 0; j < parts.length; j++) {
+                    valores[j] = Double.parseDouble(parts[j]);
                 }
-                else if (command.equals("scale"))
-                {
-                    double dScale = Double.parseDouble(parts[1]);
-                    gameObject.scale(dScale);
+
+                Collider c;
+
+                if (parts.length == 3){
+                    c = new CollCircle(Double.parseDouble(parts[2]), t);
+                }else{
+                    c = new CollPoly(valores, t);
                 }
+
+                line = sc.nextLine();
+                if (line.isEmpty()) System.exit(0);
+
+                String[] velocityData = line.split(" ");
+                double dx = Double.parseDouble(velocityData[0]);
+                double dy = Double.parseDouble(velocityData[1]);
+                int dlayer = Integer.parseInt(velocityData[2]);
+                double dTheta = Double.parseDouble(velocityData[3]);
+                double dScale = Double.parseDouble(velocityData[4]);
+                Velocity velocity = new Velocity(dx, dy, dlayer, dTheta, dScale);
+                t.setVelocity(velocity);
+
+                gameObjects.add(new GameObjects(nome, t, c));
             }
 
+            GameEngine gameEngine = new GameEngine();
+            for (GameObjects go : gameObjects) {
+                gameEngine.add(go);
+            }
 
-            System.out.println(gameObject);
-            System.exit(0);
+            gameEngine.simulateFrames(frames);
 
         } catch (Exception e)
         {

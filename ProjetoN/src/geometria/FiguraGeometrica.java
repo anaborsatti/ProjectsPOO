@@ -43,4 +43,6 @@ public abstract class FiguraGeometrica {
 
     public abstract FiguraGeometrica escalar(double factor);
 
+
+
 }
